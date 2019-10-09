@@ -57,6 +57,7 @@ const Block = {
 
 //注册节点
 
+const db = require('better-sqlite3')('./data/database/blockdatabase.db'); //挖矿奖励
 const difficulty = 1;
 const state$3 = {
   nodeId: 0,

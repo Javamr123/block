@@ -1,6 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
+require('./sqlhelper.js');
+
 //挂载
 var app = express();
 

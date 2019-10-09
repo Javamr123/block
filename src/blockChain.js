@@ -7,6 +7,9 @@ import * as fs from 'fs';
 import * as path from "path";
 import { NodeAction } from "./register_node";
 
+// 打开sqlites数据库
+const db = require('better-sqlite3')('./data/database/blockdatabase.db');
+
 //挖矿奖励
 const COINBASE_SENDER = "<COINBASE>";   //区块链官方地址
 const COINBASE_REWARD = 50;
@@ -66,6 +69,12 @@ export const BlockChain = {
                 state.transactionPool.push(Transaction.generate(send, rec, val));
                 transactions = [Transaction.generate(send, rec, val), ...transactions];
                 Block.transactions(transactions);   //把交易数据给区块链,暂时模拟这样
+
+                //将交易记录存到数据库
+                var stmt = db.prepare("INSERT INTO block_transaction (senderAddr,recipientAddr,value) VALUES (?,?,?)");
+                stmt.run(send, rec, parseInt(val));
+                console.log('插入成功');
+                return "插入成功";
         },
 
         //注册地址
@@ -73,11 +82,34 @@ export const BlockChain = {
                 var newAddr = [];
                 newAddr = addAddr.generate(addr, coinCount, transactionCount);
                 Block.registerAddr(newAddr);
+
+                //查询数据库注册地址是否已存在
+                const row = db.prepare('SELECT * FROM user WHERE addr=?').get(addr);
+                if (JSON.stringify(row) == undefined) {
+                        var stmt = db.prepare("INSERT INTO user (addr,coinCount,transactionCount) VALUES (?,?,?)");
+                        stmt.run(addr, parseInt(coinCount), parseInt(transactionCount));
+                        console.log('插入成功');
+                        return "插入成功";
+                } else {
+                        console.log('地址已存在');
+                        return "地址已存在";
+                }
+
+
+                // 增加一条数据
+                // var sql_add = db.prepare('insert into user (addr, coinCount, transactionCount) values("' + addr + '", ' + parseInt(coinCount) + ',' + parseInt(transactionCount) + ')')
+                // sql_add.run();
         },
 
         //获取所有用户地址
         getAllAddr: () => {
                 return Block.getAllAddr();
+        },
+
+        //从数据库获取用户地址
+        getSqlAddr: () => {
+                const row = db.prepare('SELECT * FROM user  ').all();
+                return JSON.stringify(row);
         },
 
         //获取节点
@@ -91,6 +123,7 @@ export const BlockChain = {
         },
 
         //假设交易池里的交易都可以放到区块里
+        //获取交易池里的交易记录
         getTransaction: () => {
                 return state.transactionPool;
         },
@@ -98,6 +131,12 @@ export const BlockChain = {
         //获取区块里的交易
         getBlockTransaction: () => {
                 return Block.getTransactions();
+        },
+
+        //获取数据库的交易记录
+        getSqlTransaction: () => {
+                const row = db.prepare('SELECT * FROM block_transaction ').all();
+                return row;
         },
 
         //工作量证明
@@ -128,6 +167,14 @@ export const BlockChain = {
                         console.log("我的区块随机数是：" + newBlock.noce);
                         if (BlockChain.isPowValid(sha)) {
                                 console.log("找到有效工作：" + sha);
+                                /*
+                                        将数据存储起来
+                                */
+                                //存储交易记录数据
+                                // var sql_add = db.prepare(`insert into user (username, password, email) values('buding', '1111', '221@sdsd.com')`)
+                                // sql_add.run()
+                                // console.log(sql_add)   
+
                                 break;
                         }
                         newBlock.noce++;   //如果不符合机制，那就noce++,再继续挖

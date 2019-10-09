@@ -1,8 +1,5 @@
 const axios = require('axios');
 
-const level = require('level');
-var db = level('./data/database')
-
 var express = require('express');
 var router = express.Router();
 
@@ -67,11 +64,20 @@ router.get('/transactions', function (request, response) {
         response.send(json);
 });
 
-//获取区块所有交易
+//获取数据库所有交易
 router.get('/gettransactions', function (request, response) {
         var json = JSON.stringify({
                 code: 1,
-                message: blockChain.getBlockTransaction(),
+                message: JSON.stringify(blockChain.getSqlTransaction()),
+        });
+        response.send(json);
+});
+
+//获取数据库交易
+router.get('/getleveltransactions', function (request, response) {
+        var json = JSON.stringify({
+                code: 1,
+                message: blockChain.getLevelTransaction(),
         });
         response.send(json);
 });
@@ -90,10 +96,10 @@ router.post('/transactions', function (request, response) {
                 response.send(json);
         }
 
-        blockChain.submitTransaction(sendAddr, recAddr, value);
+        var result = blockChain.submitTransaction(sendAddr, recAddr, value);
         var json = JSON.stringify({
                 code: 1,
-                message: `交易来自 ${sendAddr} to ${recAddr} of ${value} 成功`,
+                message: result,
         });
         response.send(json);
 });
@@ -188,10 +194,11 @@ router.post('/registeruseraddr', function (request, response) {
                 response.send(json);
         }
 
-        blockChain.registeruserAddr(userAddr, coinCount, transactionCount);
+        var result = blockChain.registeruserAddr(userAddr, coinCount, transactionCount);
+        console.log('结果' + result)
         var json = JSON.stringify({
                 code: 1,
-                message: `注册成功`,
+                message: result,
         });
         response.send(json);
 });
@@ -200,7 +207,7 @@ router.post('/registeruseraddr', function (request, response) {
 router.get('/alladdr', function (request, response) {
         var json = JSON.stringify({
                 code: 1,
-                message: blockChain.getAllAddr(),
+                message: blockChain.getSqlAddr(),
         });
         response.send(json);
 });

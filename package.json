@@ -26,7 +26,7 @@
     "superagent": "^3.0.3"
   },
   "dependencies": {
-    "level": "^5.0.1",
-    "levelup": "^0.10.0"
+    "better-sqlite3": "^5.4.3",
+    "sqlite3": "^4.1.0"
   }
 }
