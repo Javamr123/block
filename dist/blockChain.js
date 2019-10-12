@@ -87,20 +87,6 @@ const Block = {
 };
 
 //注册节点
-const state$1 = {
-  id: 0,
-  //节点id
-  url: "" //节点url
-
-};
-const NodeAction = {
-  generate: (id, url) => {
-    state$1.id = id;
-    state$1.url = url;
-    return { ...state$1
-    };
-  }
-};
 
 const db = require('better-sqlite3')('./data/database/blockdatabase.db'); //挖矿奖励
 
@@ -131,11 +117,19 @@ const BlockChain = {
   },
   //注册节点
   register: (id, url) => {
-    if (state$2.nodes.find(item => item.id == id)) {
-      return false;
+    // if (state.nodes.find(item => item.id == id)) {
+    //         return false;
+    // } else {
+    //         state.nodes.push(NodeAction.generate(id, url));
+    //         return true;
+    // }
+    //向数据库注册注册节点
+    const row = db.prepare('SELECT * FROM block_node WHERE url=?').get(url);
+
+    if (JSON.stringify(row) == undefined) {
+      console.log('数据库没有这个节点ip');
     } else {
-      state$2.nodes.push(NodeAction.generate(id, url));
-      return true;
+      console.log('数据库已有节点ip');
     }
   },
   //本地读取文件

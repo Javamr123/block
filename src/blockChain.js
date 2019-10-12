@@ -34,12 +34,23 @@ export const BlockChain = {
 
         //注册节点
         register: (id, url) => {
-                if (state.nodes.find(item => item.id == id)) {
-                        return false;
+                // if (state.nodes.find(item => item.id == id)) {
+                //         return false;
+                // } else {
+                //         state.nodes.push(NodeAction.generate(id, url));
+                //         return true;
+                // }
+
+                //向数据库注册注册节点
+                const row = db.prepare('SELECT * FROM block_node WHERE url=?').get(url);
+                if (JSON.stringify(row) == undefined) {
+                        console.log('数据库没有这个节点ip')
                 } else {
-                        state.nodes.push(NodeAction.generate(id, url));
-                        return true;
+                        console.log('数据库已有节点ip')
                 }
+
+
+
         },
 
         //本地读取文件

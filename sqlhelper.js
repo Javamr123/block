@@ -11,6 +11,9 @@ database.run("CREATE TABLE IF NOT EXISTS  user  ( addr  TEXT PRIMARY KEY NOT NUL
 //创建交易记录表
 database.run("CREATE TABLE IF NOT EXISTS  block_transaction  ( senderAddr TEXT, recipientAddr TEXT, value INTEGER ) ").run;
 
+//创建节点table
+database.run("CREATE TABLE IF NOT EXISTS  block_node  ( id TEXT, url TEXT) ").run;
+
 
 //关闭数据库
 db.close();
